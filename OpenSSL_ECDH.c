@@ -24,7 +24,7 @@ int EC_DH(unsigned char **secret, EC_KEY *key, const EC_POINT *pPub)
     secretLen = (secretLen + 7) / 8;
 
     *secret = malloc(secretLen);
-    if (!*secret)
+    if (!(*secret))
         die("Failed to allocate memory for secret.\n");
     secretLen = ECDH_compute_key(*secret, secretLen, pPub, key, NULL);
 
