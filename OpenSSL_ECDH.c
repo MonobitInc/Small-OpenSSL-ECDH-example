@@ -68,13 +68,6 @@ int main(int argc, char **argv)
     EC_KEY_free(lKey);
     EC_KEY_free(pKey);
     CRYPTO_cleanup_all_ex_data();
-
+    
     return 0;
 }
-
-
-
-
-
-
-
