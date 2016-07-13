@@ -48,8 +48,7 @@ EC_KEY* gen_key(void)
     return key;
 }
 
-int main(int argc, char **argv)
-{
+void doIt( bool show ) {
     EC_KEY *lKey, *pKey;
     int lSecretLen, pSecretLen;
     unsigned char *lSecret, *pSecret;
@@ -61,7 +60,18 @@ int main(int argc, char **argv)
     t1 = now();
     pKey = gen_key();
     t2 = now();
-    print("gen_key: l:%f p:%f", t1-t0, t2-t1 );
+    print("gen_key time: l:%f p:%f", t1-t0, t2-t1 );
+
+    if(show) {
+        const EC_POINT *lp = EC_KEY_get0_public_key(lKey);
+        print( "lKey priv:%s pub:%s",
+               BN_bn2hex(EC_KEY_get0_private_key(lKey)),
+               EC_POINT_point2hex( EC_KEY_get0_group(lKey),lp,POINT_CONVERSION_UNCOMPRESSED,NULL) );
+        const EC_POINT *pp = EC_KEY_get0_public_key(pKey);
+        print( "pKey priv:%s pub:%s",
+               BN_bn2hex(EC_KEY_get0_private_key(pKey)),
+               EC_POINT_point2hex( EC_KEY_get0_group(pKey),pp,POINT_CONVERSION_UNCOMPRESSED,NULL) );               
+    }
 
     lSecretLen = EC_DH(&lSecret, lKey, EC_KEY_get0_public_key(pKey));
     t3 = now();
@@ -69,14 +79,26 @@ int main(int argc, char **argv)
     t4 = now();
     if (lSecretLen != pSecretLen) die("SecretLen mismatch.\n");
     if (memcmp(lSecret, pSecret, lSecretLen)) die("Secrets don't match.\n");
-    print("EC_DH: l:%f p:%f", t3-t2, t4-t3);
+    print("EC_DH time: l:%f p:%f", t3-t2, t4-t3);
+    if(show) {
+        print("lSecret: len:%d dump:", lSecretLen );
+        dump((const char*)lSecret, lSecretLen);
+        print("pSecret: len:%d dump:", pSecretLen );
+        dump((const char*)pSecret, pSecretLen);
+    }
 
+    
     free(lSecret);
     free(pSecret);
     EC_KEY_free(lKey);
     EC_KEY_free(pKey);
     CRYPTO_cleanup_all_ex_data();
     t5 = now();
-    print("clean: %f", t5-t4);
+    print("clean time: %f", t5-t4);
+}
+
+int main(int argc, char **argv)
+{
+    for(int i=0;i<5;i++) doIt(i==0);
     return 0;
 }
