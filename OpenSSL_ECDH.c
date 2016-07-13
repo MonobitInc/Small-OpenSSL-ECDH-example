@@ -10,7 +10,7 @@
 /*Nice little macro to save a few lines.*/
 void die(char *reason)
 {
-    fprintf(stderr, reason);
+    fprintf(stderr, "%s\n", reason);
     fflush(stderr);
     exit(1);
 }
